@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>吾记 - 帮助与反馈</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { margin: 0; padding: 0; padding-top: 70px; background-color: #f4f6ff; font-family: "PingFang SC", sans-serif; color: #333; }
+    .top-nav { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; justify-content: center; z-index: 1000; }
+    .nav-content { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+    .nav-logo { font-size: 20px; font-weight: bold; color: #6c8cff; }
+    .nav-links a { margin-left: 30px; text-decoration: none; color: #666; font-size: 15px; font-weight: bold; transition: 0.2s; }
+    .nav-links a:hover { color: #6c8cff; }
+
+    .app-container { width: 100%; max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: #fff; border-radius: 20px; padding: 40px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    h2 { margin-top: 0; border-left: 4px solid #6c8cff; padding-left: 10px; color: #1f2937; }
+    
+    .faq-q { font-size: 16px; font-weight: bold; color: #333; margin-top: 20px; margin-bottom: 8px; }
+    .faq-a { font-size: 15px; color: #666; line-height: 1.6; }
+
+    .tags { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tag { background: #f4f6ff; padding: 10px 20px; border-radius: 20px; cursor: pointer; color: #666; border: 1px solid transparent; }
+    .tag.active { background: #6c8cff; color: #fff; font-weight: bold; }
+    textarea { width: 100%; height: 120px; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; font-size: 15px; outline: none; margin-bottom: 20px;}
+    button { background: #6c8cff; color: #fff; border: none; padding: 12px 30px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="nav-content">
+    <div class="nav-logo"><span>📝</span> 吾记实验平台</div>
+    <div class="nav-links">
+      <a href="plan.html">计划看板</a><a href="main.html">学迹记录</a><a href="my.html">个人中心</a>
+    </div>
+  </div>
+</div>
+
+<div class="app-container">
+  <div class="card">
+    <h2>使用说明与常见问题</h2>
+    <div class="faq-q">1. 每周需要记录几次？</div>
+    <div class="faq-a">每周完成1篇周记即可获得积分。当周记录的内容均归入同一篇，可根据需要多次补充。</div>
+    <div class="faq-q">2. 错过本周记录怎么办？</div>
+    <div class="faq-a">可于每周一补写上一周的记录，补写完成后计入上一周。过期后记录将锁定。</div>
+    <div class="faq-q">3. 页面卡顿或语音没反应？</div>
+    <div class="faq-a">请刷新页面，并确保浏览器（推荐Chrome）已允许麦克风权限。</div>
+  </div>
+
+  <div class="card">
+    <h2>提交问题反馈</h2>
+    <div class="tags" id="tagBox">
+      <div class="tag active" onclick="sel('页面显示异常')">页面显示异常</div>
+      <div class="tag" onclick="sel('无法提交日记')">无法提交日记</div>
+      <div class="tag" onclick="sel('语音输入异常')">语音输入异常</div>
+      <div class="tag" onclick="sel('其他问题')">其他问题</div>
+    </div>
+    <textarea id="fbContent" placeholder="请描述您遇到的问题..."></textarea>
+    <button onclick="submitFb()" id="btnFb">提交反馈</button>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <h2>关于我们</h2>
+    <p style="color:#666; line-height:1.8;">【吾记】是一项面向大学新生的记录与经验反思平台。<br>所有记录仅用于高校学生学习发展研究分析，并严格保护隐私。<br>联系邮箱：lipanqi2004@163.com</p>
+  </div>
+</div>
+
+<script>
+  let type = '页面显示异常';
+  function sel(val) {
+    type = val;
+    document.querySelectorAll('.tag').forEach(el => el.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  async function submitFb() {
+    const txt = document.getElementById('fbContent').value.trim();
+    if(!txt) return alert('请输入内容');
+    document.getElementById('btnFb').innerText = '提交中...';
+    
+    const SUPABASE_URL = 'https://kacvzwfuyixwytvqecxt.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ZxqmSSYGC8FMIIrltnq2kw_zEyJJy5A';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    await supabase.from('feedbacks').insert([{ student_id: localStorage.getItem('studentId'), issue_type: type, content: txt }]);
+    alert('提交成功！');
+    document.getElementById('fbContent').value = '';
+    document.getElementById('btnFb').innerText = '提交反馈';
+  }
+</script>
+</body>
+</html>
